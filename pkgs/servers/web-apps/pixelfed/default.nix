@@ -25,15 +25,9 @@ in package.override rec {
   };
 
   meta = with lib; {
-    description = "wallabag is a self hostable application for saving web pages";
-    longDescription = ''
-      wallabag is a self-hostable PHP application allowing you to not
-      miss any content anymore. Click, save and read it when you can.
-      It extracts content so that you can read it when you have time.
-    '';
-    license = licenses.mit;
-    homepage = "http://wallabag.org";
-    changelog = "https://github.com/wallabag/wallabag/releases/tag/${version}";
+    description = "A federated image sharing platform";
+    license = licenses.agpl3Only;
+    homepage = "https://pixelfed.org/";
     maintainers = with maintainers; [ bezmuth ];
     platforms = platforms.all;
   };
