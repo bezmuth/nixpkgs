@@ -152,7 +152,7 @@ in {
         type = types.str;
         description = lib.mdDoc '' A random
           32-character string to be used as an encryption key. No default value;
-          use php artisan key:generate to generate. {option}`database.user`. '';
+          use php artisan key:generate in the dataDir to generate. '';
       };
 
       maxUploadSize = mkOption {
@@ -172,7 +172,7 @@ in {
 
       nginx.enableSSL = mkOption {
         type = types.bool;
-        default = false;
+        default = true;
         description = lib.mdDoc ''
         Whether or not to enable SSL (with ACME and let's encrypt)
         for the pixelfed vhost.
@@ -242,12 +242,11 @@ in {
     };
 
     # this is neccessary as pixelfed cannot be configured to point to an
-    # alternate location for data. Very sketchy method, takes a long time on
-    # first run, a better solution might be possible but im not aware of one.
+    # alternate location for data. Very sketchy method, takes a long time to
+    # run, a better solution might be possible but im not aware of one.
     systemd.services.pixelfed-data-setup = {
       description = "copy data from the nix store to mutable filesystem and change permissions";
-      wantedBy = [ "multi-user.target" ];
-      requiredBy = [ "nginx.service" "phpfpm-pixelfed.service" ];
+      wantedBy = [ "mult-user.target"];
       path = with pkgs; [ bash ];
 
       script = ''
@@ -267,6 +266,10 @@ in {
 
     services.nginx = {
       enable = true;
+      recommendedGzipSettings = true;
+      recommendedOptimisation = true;
+      recommendedProxySettings = true;
+      recommendedTlsSettings = true;
       virtualHosts."${cfg.hostName}" = mkMerge [
         { root = ''${cfg.dataDir}/public/'';
           locations."/".extraConfig = ''
@@ -289,6 +292,13 @@ in {
           locations."~ /\\.(?!well-known).*".extraConfig = ''
             deny all;
           '';
+          extraConfig = ''
+              add_header X-Frame-Options "SAMEORIGIN";
+              add_header X-XSS-Protection "1; mode=block";
+              add_header X-Content-Type-Options "nosniff";
+              index index.html index.htm index.php;
+              error_page 404 /index.php;
+          '';
         }
         (mkIf cfg.nginx.enableSSL {
           enableACME = true;
@@ -296,6 +306,4 @@ in {
         })
       ];
     };
-  };
-
 }
