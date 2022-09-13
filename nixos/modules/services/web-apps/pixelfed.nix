@@ -246,7 +246,7 @@ in {
     # run, a better solution might be possible but im not aware of one.
     systemd.services.pixelfed-data-setup = {
       description = "copy data from the nix store to mutable filesystem and change permissions";
-      wantedBy = [ "mult-user.target"];
+      wantedBy = [ "multi-user.target" ];
       path = with pkgs; [ bash ];
 
       script = ''
@@ -306,4 +306,5 @@ in {
         })
       ];
     };
+  };
 }
